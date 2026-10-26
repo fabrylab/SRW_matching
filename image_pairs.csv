@@ -1,0 +1,11 @@
+whale,gallery_date,query_date,days_apart,gallery_image,gallery_mask,query_image,query_mask
+SW0009,2022-07-01,2022-06-25,6,Gallery_SW0009.png,Callosities_Gallery_SW0009.png,Query_SW0009.png,Callosities_Query_SW0009.png
+SW0075,2022-08-06,2022-06-26,41,Gallery_SW0075.png,Callosities_Gallery_SW0075.png,Query_SW0075.png,Callosities_Query_SW0075.png
+SW0087,2022-09-26,2022-09-11,15,Gallery_SW0087.png,Callosities_Gallery_SW0087.png,Query_SW0087.png,Callosities_Query_SW0087.png
+SW0088,2022-09-11,2022-07-12,61,Gallery_SW0088.png,Callosities_Gallery_SW0088.png,Query_SW0088.png,Callosities_Query_SW0088.png
+SW0089,2022-09-04,2022-09-11,7,Gallery_SW0089.png,Callosities_Gallery_SW0089.png,Query_SW0089.png,Callosities_Query_SW0089.png
+SW0172,2022-10-09,2023-09-20,346,Gallery_SW0172.png,Callosities_Gallery_SW0172.png,Query_SW0172.png,Callosities_Query_SW0172.png
+SW0193,2023-07-15,2023-07-22,7,Gallery_SW0193.png,Callosities_Gallery_SW0193.png,Query_SW0193.png,Callosities_Query_SW0193.png
+SW0201,2023-07-30,2023-07-15,15,Gallery_SW0201.png,Callosities_Gallery_SW0201.png,Query_SW0201.png,Callosities_Query_SW0201.png
+SW0353,2024-07-27,2024-08-09,13,Gallery_SW0353.png,Callosities_Gallery_SW0353.png,Query_SW0353.png,Callosities_Query_SW0353.png
+SW0375,2024-08-11,2024-09-16,36,Gallery_SW0375.png,Callosities_Gallery_SW0375.png,Query_SW0375.png,Callosities_Query_SW0375.png
