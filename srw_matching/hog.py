@@ -1,7 +1,7 @@
 """Compare registered callosity edges using Histograms of Oriented Gradients."""
 import cv2
 import numpy as np
-import Registration
+from . import registration
 
 
 def descriptor(image):
@@ -14,7 +14,7 @@ def descriptor(image):
 
 
 def prepare(mask_file):
-    image = Registration.smooth(Registration.prepare_edges(mask_file))
+    image = registration.smooth(registration.prepare_edges(mask_file))
     return {"image": image, "vector": descriptor(image)}
 
 
@@ -26,10 +26,10 @@ def match(query, reference):
 
     def distance_at(transform):
         if transform not in vectors:
-            image = Registration.transform_image(query["image"], transform)
+            image = registration.transform_image(query["image"], transform)
             vectors[transform] = descriptor(image)
         # For unit-length descriptors, 1 minus their dot product is the cosine distance.
         return 1.0 - float(np.dot(vectors[transform], reference["vector"]))
 
     # The shared registration search uses distance_at to score each fine alignment.
-    return Registration.register(query["image"], reference["image"], distance_at)
+    return registration.register(query["image"], reference["image"], distance_at)

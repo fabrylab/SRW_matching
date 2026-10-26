@@ -1,78 +1,119 @@
-# Right-whale matching: small, standalone example
+# Semi-automated identification of southern right whales from drone imagery by classical image matching methods
 
-Run with Python 3.10-3.13. Open a terminal in this folder and enter:
+![Gallery and query photographs of whale SW0075 with their callosity masks overlaid](docs/banner.png)
+
+[![DOI](https://img.shields.io/badge/DOI-10.64898%2F2026.07.19.739396-b31b1b.svg)](https://doi.org/10.64898/2026.07.19.739396)
+[![bioRxiv](https://img.shields.io/badge/bioRxiv-preprint-b31b1b.svg)](https://www.biorxiv.org/content/10.64898/2026.07.19.739396v1)
+
+Ben Fabry<sup>1</sup> [![ORCID iD](https://info.orcid.org/wp-content/uploads/2020/12/ORCIDiD_icon16x16.png)](https://orcid.org/0000-0003-1737-0465),
+Greta Jacobs<sup>1</sup>,
+Johannes Bartl<sup>1</sup> [![ORCID iD](https://info.orcid.org/wp-content/uploads/2020/12/ORCIDiD_icon16x16.png)](https://orcid.org/0000-0003-1547-6450),
+Max Fabry<sup>2,3</sup>
+
+<sup>1</sup> Department of Physics, Friedrich-Alexander University of Erlangen-Nuremberg, Erlangen, Germany<br>
+<sup>2</sup> Centre for Sustainable Aquatic Ecosystems, Murdoch University, Perth, Western Australia, Australia<br>
+<sup>3</sup> School of Biological Sciences, University of Western Australia, Perth, Western Australia, Australia
+
+This is the official repository for the
+[paper on bioRxiv](https://doi.org/10.64898/2026.07.19.739396). It contains a small, standalone
+example of the matching procedure: southern right whale photographs are
+matched by the pattern of their callosities, using two methods, HOG and
+log-chamfer.
+
+## Run
+
+Requires Python 3.10–3.13. Open a terminal in this folder:
 
     python -m pip install -r requirements.txt
     python match.py
 
-Choose a query from the numbered list. Both methods run by default.
-To select a photograph and method directly:
+Choose a query from the numbered list; both methods run by default.
+To choose a query and method directly:
 
     python match.py --query Query_SW0089.png --method hog
     python match.py --query Query_SW0089.png --method chamfer
     python match.py --query Query_SW0089.png --method both
 
-On Windows, "py" can be used instead of "python" if that is your Python command.
-The entire folder can be copied elsewhere. No server, database, account,
-network connection, or trained model is needed after installing the packages.
+On Windows, `py` can be used instead of `python`. No server, database,
+network connection or trained model is needed after installing the packages.
 
-## FILES
+## Structure
 
-    match.py          Selects a query, calls the matching methods, prints ranks.
-    HOG.py            Compares local edge-orientation descriptors.
-    Chamfer.py        Compares sampled edges using capped log-chamfer distance.
-    Registration.py   Prepares masks and searches for the best alignment.
+    match.py                 Choose a query, run the methods, print the ranking.
+    srw_matching/
+        hog.py               HOG distance between edge-orientation descriptors.
+        chamfer.py           Capped log-chamfer distance between sampled edges.
+        registration.py      Mask preparation and alignment search.
+    data/
+        gallery/photos/      Gallery_SWxxxx.png       (10 photographs)
+        gallery/masks/       Callosities_Gallery_SWxxxx.png
+        query/photos/        Query_SWxxxx.png         (10 photographs)
+        query/masks/         Callosities_Query_SWxxxx.png
+        image_pairs.csv      Dates and file correspondence for each pair.
+    tests/
+        expected_rankings.csv   Reference output for all queries and methods.
+        test_rankings.py        Checks the program against that output.
 
-There are ten Gallery_SWxxxx.png and ten Query_SWxxxx.png photographs.
-Each has a separate Callosities_Gallery_SWxxxx.png or
-Callosities_Query_SWxxxx.png mask. White means diagnostic callosity; black
-means everything else. Matching reads these masks, not photograph intensities.
-The whale codes identify the supplied examples; they are not used to calculate
-similarity or choose a match.
+All images are standardized to 1200 × 1000 pixels. In the masks, white is
+callosity and black is everything else. **Matching uses only the masks**; the
+photographs are for inspection. Each gallery/query pair was photographed on
+different dates. The whale codes only label the examples and are not used in
+matching.
 
-All photographs and masks were already manually standardized to 1200 x 1000
-pixels. Each gallery/query pair was photographed on different dates.
-image_pairs.csv lists the dates and file correspondence. The whales were
-sampled without consulting the matching results. This small set illustrates
-the procedure, not population accuracy or performance against the complete
-research catalogue.
+## What the program does
 
-## WHAT THE PROGRAM DOES
+1. Extract callosity edges from the head region of each mask.
+2. Obtain a coarse alignment by normalized image correlation.
+3. Refine the alignment (shift, rotation, scale) to minimize the HOG or chamfer distance.
+4. Rank all gallery images by distance. Lower is better.
 
-1. Extract callosity edges, crop x=225:975 and y=350:650, and reduce to 320 x 128.
-2. Obtain a coarse alignment by normalized image correlation at 80 x 32.
-3. Starting from that alignment and from no transformation, improve the HOG or
-   chamfer distance by local changes in translation, rotation and scale.
-4. Sort all ten gallery images by their final distance, separately for each
-   method. Lower is better. Inspect the photographs to confirm an identity.
+The ranking suggests candidates; confirm an identity by looking at the photographs.
 
-The alignment limits are +/-5 degrees, scale 0.80-1.20, and +/-60 ROI pixels.
-Refinement steps are 1 degree, 0.01 scale, and 2 pixels. It is a local search;
-it does not guarantee the best result over every possible transformation.
+## The gap
 
-HOG uses 16-pixel cells, 32-pixel blocks, a 16-pixel block stride and nine bins.
-Log-chamfer uses at most ten arc-length-spaced points per edge contour, a
-30-pixel distance cap, log(1+distance), and both query-to-reference and
-reference-to-query comparisons. The point-rotation convention is preserved
-from the server and explained in Chamfer.py.
+The program reports **g = d2 − d1**, the distance between the best and
+second-best gallery image. A larger gap means the top candidate stands out
+more clearly in this gallery. It is not a probability or a validated
+accept/reject threshold. HOG and chamfer distances use different scales and
+should not be compared with each other.
 
-## THE GAP
+## Checking the output
 
-The program reports g = d2 - d1, where d1 and d2 are the distances to the first
-and second ranked gallery images. It also shows each distance minus d1.
-A larger gap separates the best candidate more strongly from the runner-up
-within this particular gallery. It is NOT a probability or a validated
-accept/reject rule. Distances and gaps from HOG and chamfer use different
-scales and should not be compared directly. No risk score is fitted or used.
+    python tests/test_rankings.py
 
-## CHECKING THE OUTPUT
+Compares every query and method with `tests/expected_rankings.csv`. Tiny
+floating-point differences across OpenCV versions are tolerated.
 
-expected_rankings.csv contains all ten queries x ten references for each
-method, including distances and gaps. Small floating-point differences can
-occur across OpenCV versions/platforms. The example uses the server's core
-preprocessing, distances and two-stage registration, with its infrastructure,
-parallel workers and large caches removed for readability.
+## Adding images
 
-To add an image, first prepare a matching standardized photograph and binary
-mask with the same dimensions and naming convention. The example does not
-perform automatic segmentation or the manual standardization step.
+Add a standardized 1200 × 1000 photograph and its binary mask to the matching
+`photos/` and `masks/` folders, using the same naming convention. This example
+does not segment or standardize images automatically.
+
+This small set illustrates the procedure; it does not measure accuracy on the
+full research catalogue.
+
+## Citation
+
+If you use this code, please cite:
+
+> Fabry B, Jacobs G, Bartl J, Fabry M. Semi-automated identification of
+> southern right whales from drone imagery by classical image matching
+> methods. *bioRxiv* (2026). https://doi.org/10.64898/2026.07.19.739396
+
+```bibtex
+@article{fabry2026srw,
+  title   = {Semi-automated identification of southern right whales from drone imagery by classical image matching methods},
+  author  = {Fabry, Ben and Jacobs, Greta and Bartl, Johannes and Fabry, Max},
+  journal = {bioRxiv},
+  year    = {2026},
+  doi     = {10.64898/2026.07.19.739396},
+  url     = {https://www.biorxiv.org/content/10.64898/2026.07.19.739396v1}
+}
+```
+
+## Contact
+
+Ben Fabry, Department of Physics, Friedrich-Alexander University of
+Erlangen-Nuremberg, Henkestr. 91, 91052 Erlangen, Germany<br>
+ben.fabry@fau.de

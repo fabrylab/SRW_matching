@@ -5,10 +5,15 @@ Or:  python match.py --query Query_SW0089.png --method hog
 """
 from pathlib import Path
 import argparse
-import HOG
-import Chamfer
+from srw_matching import hog, chamfer
 
-FOLDER = Path(__file__).resolve().parent
+DATA = Path(__file__).resolve().parent / "data"
+QUERY, GALLERY = DATA / "query", DATA / "gallery"
+
+
+def mask_for(photo):
+    """data/<set>/photos/X.png -> data/<set>/masks/Callosities_X.png"""
+    return photo.parent.parent / "masks" / ("Callosities_" + photo.name)
 
 
 def main():
@@ -16,12 +21,12 @@ def main():
     parser.add_argument("--query", help="Query image filename; omitted = numbered menu")
     parser.add_argument("--method", choices=["hog", "chamfer", "both"], default="both")
     args = parser.parse_args()
-    queries = sorted(FOLDER.glob("Query_SW*.png"))
-    gallery = sorted(FOLDER.glob("Gallery_SW*.png"))
+    queries = sorted((QUERY / "photos").glob("Query_SW*.png"))
+    gallery = sorted((GALLERY / "photos").glob("Gallery_SW*.png"))
     if not queries or len(gallery) < 2:
-        parser.error("The example query and gallery PNG files must be beside match.py.")
+        parser.error("The example photographs must be in data/query/photos and data/gallery/photos.")
     if args.query:
-        query = FOLDER / args.query
+        query = QUERY / "photos" / args.query
         if query not in queries:
             parser.error("Choose one of the supplied Query_SWxxxx.png files.")
     else:
@@ -35,15 +40,15 @@ def main():
         except ValueError:
             parser.error("Please enter a number from the list.")
     print(f"\nQuery: {query.name}")
-    methods = [("HOG", HOG), ("Log-chamfer", Chamfer)]
+    methods = [("HOG", hog), ("Log-chamfer", chamfer)]
     if args.method != "both":
         methods = [methods[0] if args.method == "hog" else methods[1]]
     for name, method in methods:
         # Photographs are provided for inspection; matching uses their masks.
-        prepared_query = method.prepare(FOLDER / ("Callosities_" + query.name))
+        prepared_query = method.prepare(mask_for(query))
         ranked = []
         for photo in gallery:
-            reference = method.prepare(FOLDER / ("Callosities_" + photo.name))
+            reference = method.prepare(mask_for(photo))
             # Align this query-reference pair before calculating its final distance.
             distance, transform = method.match(prepared_query, reference)
             ranked.append((distance, photo.name))

@@ -2,7 +2,7 @@
 import math
 import cv2
 import numpy as np
-import Registration
+from . import registration
 
 CAP = 30.0  # ROI pixels; distant unmatched edges cannot dominate without limit.
 
@@ -34,12 +34,12 @@ def contour_points(edges):
 
 
 def prepare(mask_file):
-    edges = Registration.prepare_edges(mask_file, opening=True)
+    edges = registration.prepare_edges(mask_file, opening=True)
     # Each pixel stores its distance to the nearest callosity edge.
     distance = cv2.distanceTransform((~edges).astype(np.uint8) * 255, cv2.DIST_L2, 3)
     return {"points": contour_points(edges),
             "distance": np.log1p(np.minimum(distance, CAP)).astype(np.float32),
-            "image": Registration.smooth(edges)}
+            "image": registration.smooth(edges)}
 
 
 def transform_points(points, transform, inverse=False):
@@ -79,4 +79,4 @@ def match(query, reference):
                       + sample_distance(query["distance"], backward))
 
     # The shared registration search uses distance_at to score each fine alignment.
-    return Registration.register(query["image"], reference["image"], distance_at)
+    return registration.register(query["image"], reference["image"], distance_at)

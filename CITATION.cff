@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite the paper below."
+title: "Semi-automated identification of southern right whales from drone imagery by classical image matching methods"
+type: software
+authors:
+  - family-names: Fabry
+    given-names: Ben
+    orcid: "https://orcid.org/0000-0003-1737-0465"
+  - family-names: Jacobs
+    given-names: Greta
+  - family-names: Bartl
+    given-names: Johannes
+    orcid: "https://orcid.org/0000-0003-1547-6450"
+  - family-names: Fabry
+    given-names: Max
+preferred-citation:
+  type: article
+  title: "Semi-automated identification of southern right whales from drone imagery by classical image matching methods"
+  authors:
+    - family-names: Fabry
+      given-names: Ben
+      orcid: "https://orcid.org/0000-0003-1737-0465"
+    - family-names: Jacobs
+      given-names: Greta
+    - family-names: Bartl
+      given-names: Johannes
+      orcid: "https://orcid.org/0000-0003-1547-6450"
+    - family-names: Fabry
+      given-names: Max
+  journal: "bioRxiv"
+  year: 2026
+  doi: "10.64898/2026.07.19.739396"
+  url: "https://www.biorxiv.org/content/10.64898/2026.07.19.739396v1"
